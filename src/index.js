@@ -26,6 +26,25 @@ const getResponse = (newURL) => {
   return axios.get(url);
 };
 
+const getNewPosts = (posts, oldPosts) => {
+  const oldLinks = oldPosts.map((oldPost) => oldPost.link);
+  return posts.filter((newPost) => !oldLinks.includes(newPost.link));
+};
+
+const updateFeeds = (state) => {
+  const { content } = state;
+  const promises = content.feeds.map((feed) => getResponse(feed.url));
+  Promise.all(promises)
+    .then((updatedFeeds) => {
+      updatedFeeds.forEach((updatedFeed) => {
+        const { posts } = getDataFromRSS(updatedFeed.data.contents);
+        const newPosts = getNewPosts(posts, content.posts);
+        content.posts = [...newPosts, ...content.posts];
+      });
+      setTimeout(updateFeeds, 5000, state);
+    });
+};
+
 const app = () => {
   const elements = {
     language: navigator.languages,
@@ -56,6 +75,7 @@ const app = () => {
   })
     .then(() => {
       const wacherState = onChange(state, render(elements, state, i18n));
+      updateFeeds(wacherState);
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         wacherState.validate.error = null;
