@@ -4,8 +4,27 @@ import 'bootstrap';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import i18next from 'i18next';
-import render from './view.js';
-import resources from './locales/index.js'
+import axios from 'axios';
+import render from './view';
+import resources from './locales/index';
+import getDataFromRSS from './getDataFromRSS';
+
+const validate = (existingURLs, newURL) => {
+  const schema = yup.string().url('URL_invalid').notOneOf(existingURLs, 'existing_RSS');
+  return schema.validate(newURL);
+};
+
+const getURLForRequest = (newUrl) => {
+  const url = new URL('https://allorigins.hexlet.app/get');
+  url.searchParams.append('disableCache', true);
+  url.searchParams.append('url', newUrl);
+  return url;
+};
+
+const getResponse = (newURL) => {
+  const url = getURLForRequest(newURL);
+  return axios.get(url);
+};
 
 const app = () => {
   const elements = {
@@ -14,18 +33,20 @@ const app = () => {
     button: document.querySelector('.rss-form button'),
     input: document.querySelector('#url-input'),
     feedback: document.querySelector('.feedback'),
+    colomnFeeds: document.querySelector('.feeds'),
+    colomnPosts: document.querySelector('.posts'),
   };
+
   const state = {
     language: 'ru',
     validate: {
       state: 'valid',
       error: null,
     },
-    feeds: [],
-  };
-  const validate = (url) => {
-    const schema = yup.string().url('URL_invalid').notOneOf(state.feeds, 'existing_RSS');
-    return schema.validate(url);
+    content: {
+      feeds: [],
+      posts: [],
+    },
   };
   const i18n = i18next.createInstance();
   i18n.init({
@@ -35,25 +56,42 @@ const app = () => {
   })
     .then(() => {
       const wacherState = onChange(state, render(elements, state, i18n));
-      console.log(i18n.t('heloo'))
-      // wacherState.validate.state = 'invalid';
       elements.form.addEventListener('submit', (e) => {
         e.preventDefault();
         wacherState.validate.error = null;
         wacherState.validate.state = 'updated';
-        const { value: valueFromInput } = elements.input;
-        validate(valueFromInput)
-          .then((newUrl) => {
+        const { value: newURL } = elements.input;
+        const existingURLs = state.content.feeds.map((feed) => feed.url);
+        validate(existingURLs, newURL)
+          .then(() => getResponse(newURL))
+          .then((response) => {
+            const { feed, posts } = getDataFromRSS(response.data.contents, newURL);
             wacherState.validate.state = 'valid';
-            wacherState.feeds.push(newUrl);
+            wacherState.content.feeds.push(feed);
+            wacherState.content.posts.push(...posts);
+            console.log(state);
           })
           .catch((err) => {
-            wacherState.validate.error = err.message;
+            switch (err.name) {
+              case 'AxiosError':
+                wacherState.validate.error = 'ERR_NETWORK';
+                break;
+
+              case 'ValidationError':
+                wacherState.validate.error = err.message;
+                break;
+
+              case 'ParserError':
+                wacherState.validate.error = err.message;
+                break;
+              default:
+                console.error('Неизвестный тип ошибки: ', err);
+                break;
+            }
             wacherState.validate.state = 'invalid';
           });
       });
     });
-
 };
 
 app();

@@ -5,7 +5,7 @@ export default {
     RSS_uploaded: 'RSS успешно загружен',
     invalid_RSS: 'Ресурс не содержит валидный RSS',
     title_feeds: 'Фиды',
-    posts: 'Посты',
+    title_posts: 'Посты',
     button_in_post: 'Просмотр',
     ERR_NETWORK: 'Ошибка сети',
   },

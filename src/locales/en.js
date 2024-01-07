@@ -5,7 +5,7 @@ export default {
     RSS_uploaded: 'RSS Uploaded successfully',
     invalid_RSS: 'Does not contain valid RSS',
     title_feeds: 'Feeds',
-    posts: 'Posts',
+    title_posts: 'Posts',
     button_in_post: 'Show',
     ERR_NETWORK: 'Network error',
   },
