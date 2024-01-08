@@ -1,3 +1,4 @@
+/* eslint no-use-before-define: 0 */
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
 const path = require("path");
