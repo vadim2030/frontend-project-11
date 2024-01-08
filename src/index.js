@@ -54,6 +54,11 @@ const app = () => {
     feedback: document.querySelector('.feedback'),
     colomnFeeds: document.querySelector('.feeds'),
     colomnPosts: document.querySelector('.posts'),
+    modal: document.querySelector('#modal'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalDescription: document.querySelector('.text-break'),
+    modalBtnRead: document.querySelector('.modal-footer > a'),
+    modalBtnClose: document.querySelector('.modal-footer > button'),
   };
 
   const state = {
@@ -65,6 +70,10 @@ const app = () => {
     content: {
       feeds: [],
       posts: [],
+    },
+    readPosts: new Set(),
+    modal: {
+      post: null,
     },
   };
   const i18n = i18next.createInstance();
@@ -89,7 +98,6 @@ const app = () => {
             wacherState.validate.state = 'valid';
             wacherState.content.feeds.push(feed);
             wacherState.content.posts.push(...posts);
-            console.log(state);
           })
           .catch((err) => {
             switch (err.name) {
@@ -110,6 +118,20 @@ const app = () => {
             }
             wacherState.validate.state = 'invalid';
           });
+      });
+      elements.modal.addEventListener('show.bs.modal', (even) => {
+        const postID = even.relatedTarget.getAttribute('data-id');
+        const [currentPost] = state.content.posts.filter((post) => post.postID === postID);
+        wacherState.modal.post = currentPost;
+      });
+      elements.modal.addEventListener('hide.bs.modal', () => {
+        wacherState.modal.post = null;
+      });
+      elements.colomnPosts.addEventListener('click', ({ target }) => {
+        const postID = target.getAttribute('data-id');
+        if (postID) {
+          wacherState.readPosts.add(postID);
+        }
       });
     });
 };

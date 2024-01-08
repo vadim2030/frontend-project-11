@@ -1,5 +1,4 @@
 const renderFeedback = (elements, state, status, i18n) => {
-  // console.log(status);
   const { feedback, input, button } = elements;
   const { validate: { error } } = state;
   switch (status) {
@@ -56,7 +55,8 @@ const renderFeeds = (elements, feeds, i18n) => {
   colomnFeeds.append(card);
 };
 
-const renderPosts = (elements, posts, i18n) => {
+const renderPosts = (elements, posts, readPosts, i18n) => {
+  const readPostsArr = Array.from(readPosts);
   const { colomnPosts } = elements;
   colomnPosts.innerHTML = '';
   const card = document.createElement('div');
@@ -72,15 +72,26 @@ const renderPosts = (elements, posts, i18n) => {
     const item = document.createElement('li');
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const titlePosts = document.createElement('a');
-    titlePosts.classList.add('fw-bold');
+    if (readPostsArr.includes(post.postID)) {
+      titlePosts.classList.remove('fw-bold');
+      titlePosts.classList.add('fw-normal');
+      titlePosts.classList.add('link-secondary');
+    } else {
+      titlePosts.classList.add('fw-bold');
+      titlePosts.classList.remove('fw-normal');
+      titlePosts.classList.remove('link-secondary');
+    }
     titlePosts.textContent = post.title;
     titlePosts.href = post.link;
+    titlePosts.setAttribute('data-id', post.postID);
+    titlePosts.setAttribute('target', '_blank');
     const button = document.createElement('button');
     button.textContent = i18n.t('button_in_post');
     button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     button.setAttribute('type', 'button');
     button.setAttribute('data-id', post.postID);
-
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
     item.append(titlePosts, button);
     list.append(item);
   });
@@ -90,6 +101,26 @@ const renderPosts = (elements, posts, i18n) => {
   colomnPosts.append(card);
 };
 
+const renderModal = (elements, post, i18n) => {
+  const {
+    modalTitle,
+    modalDescription,
+    modalBtnRead,
+    modalBtnClose,
+  } = elements;
+  if (!post) {
+    modalTitle.textContent = '';
+    modalDescription.textContent = '';
+    modalBtnRead.textContent = '';
+  } else {
+    modalTitle.textContent = post.title;
+    modalDescription.textContent = post.description;
+    modalBtnRead.href = post.link;
+    modalBtnRead.textContent = i18n.t('modalBtnRead');
+    modalBtnClose.textContent = i18n.t('btnClose');
+  }
+};
+
 const render = (elements, state, i18n) => (path, value) => {
   if (path === 'validate.state') {
     renderFeedback(elements, state, value, i18n);
@@ -97,8 +128,11 @@ const render = (elements, state, i18n) => (path, value) => {
   if (path === 'content.feeds') {
     renderFeeds(elements, state.content.feeds, i18n);
   }
-  if (path === 'content.posts') {
-    renderPosts(elements, state.content.posts, i18n);
+  if (path === 'content.posts' || path === 'readPosts') {
+    renderPosts(elements, state.content.posts, state.readPosts, i18n);
+  }
+  if (path === 'modal.post') {
+    renderModal(elements, value, i18n);
   }
 };
 

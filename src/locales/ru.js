@@ -8,5 +8,7 @@ export default {
     title_posts: 'Посты',
     button_in_post: 'Просмотр',
     ERR_NETWORK: 'Ошибка сети',
+    modalBtnRead: 'Читать полностью',
+    btnClose: 'закрыть',
   },
 };
