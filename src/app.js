@@ -94,7 +94,8 @@ const app = () => {
         e.preventDefault();
         wacherState.validate.error = null;
         wacherState.validate.state = 'updated';
-        const { value: newURL } = elements.input;
+        const formData = new FormData(e.target);
+        const newURL = formData.get('url');
         const existingURLs = state.content.feeds.map((feed) => feed.url);
         validate(existingURLs, newURL)
           .then(() => getResponse(newURL))

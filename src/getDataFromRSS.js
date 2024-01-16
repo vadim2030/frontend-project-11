@@ -17,7 +17,7 @@ const getPosts = (rssDOM) => {
 const getDataFromRSS = (rss) => {
   const parser = new DOMParser();
   const rssDOM = parser.parseFromString(rss, 'application/xhtml+xml');
-  if (rssDOM.querySelector('parsererror')) throw new ParserError();
+  if (rssDOM.querySelector('parsererror')) throw new ParserError(rss, rssDOM);
 
   return {
     feed: getFeed(rssDOM),

@@ -7,6 +7,7 @@ const renderFeedback = (elements, state, status, i18n) => {
       feedback.classList.add('text-success');
       feedback.textContent = i18n.t('RSS_uploaded');
       input.value = '';
+      input.focus();
       button.disabled = false;
       break;
 
