@@ -12,7 +12,7 @@ const renderFeedback = (elements, state, status, i18n) => {
       break;
 
     case 'invalid':
-      feedback.textContent = i18n.t(error);
+      feedback.textContent = i18n.t(error.key);
       button.disabled = false;
       break;
 

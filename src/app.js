@@ -8,11 +8,13 @@ import { uniqueId } from 'lodash';
 import render from './view';
 import resources from './locales/index';
 import getDataFromRSS from './getDataFromRSS';
+import locale from './locales/locale';
 
 const updateTime = 5000;
 
 const validate = (existingURLs, newURL) => {
-  const schema = yup.string().url('URL_invalid').notOneOf(existingURLs, 'existing_RSS');
+  yup.setLocale(locale);
+  const schema = yup.string().url().notOneOf(existingURLs);
   return schema.validate(newURL);
 };
 
@@ -125,7 +127,7 @@ const app = () => {
                 break;
 
               case 'ParserError':
-                wacherState.validate.error = err.message;
+                wacherState.validate.error = { key: err.message };
                 break;
               default:
                 console.error('Неизвестный тип ошибки: ', err);
