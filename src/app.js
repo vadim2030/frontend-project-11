@@ -119,7 +119,7 @@ const app = () => {
           .catch((err) => {
             switch (err.name) {
               case 'AxiosError':
-                wacherState.validate.error = 'ERR_NETWORK';
+                wacherState.validate.error = { key: 'ERR_NETWORK' };
                 break;
 
               case 'ValidationError':
